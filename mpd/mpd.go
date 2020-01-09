@@ -6,10 +6,11 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
-	. "github.com/zencoder/go-dash/helpers/ptrs"
+	. "github.com/standly/go-dash/helpers/ptrs"
 )
 
 // Type definition for DASH profiles
@@ -430,23 +431,23 @@ type SegmentTemplate struct {
 	Duration               *int64           `xml:"duration,attr"`
 	Initialization         *string          `xml:"initialization,attr"`
 	Media                  *string          `xml:"media,attr"`
-	StartNumber            *int64           `xml:"startNumber,attr"`
-	Timescale              *int64           `xml:"timescale,attr"`
+	StartNumber            *int64           `xml:"startNumber,attr,omitempty"`
+	Timescale              *int64           `xml:"timescale,attr,omitempty"`
 }
 
 type Representation struct {
 	CommonAttributesAndElements
 	AdaptationSet             *AdaptationSet             `xml:"-"`
 	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration,omitempty"`
-	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"`   // Audio
-	Bandwidth                 *int64                     `xml:"bandwidth,attr"`           // Audio + Video
-	Codecs                    *string                    `xml:"codecs,attr"`              // Audio + Video
-	FrameRate                 *string                    `xml:"frameRate,attr,omitempty"` // Video
-	Height                    *int64                     `xml:"height,attr"`              // Video
-	ID                        *string                    `xml:"id,attr"`                  // Audio + Video
-	Width                     *int64                     `xml:"width,attr"`               // Video
-	BaseURL                   *string                    `xml:"BaseURL,omitempty"`        // On-Demand Profile
-	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
+	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr,omitempty"` // Audio
+	Bandwidth                 *int64                     `xml:"bandwidth,attr"`                   // Audio + Video
+	Codecs                    *string                    `xml:"codecs,attr"`                      // Audio + Video
+	FrameRate                 *string                    `xml:"frameRate,attr,omitempty"`         // Video
+	Height                    *int64                     `xml:"height,attr"`                      // Video
+	ID                        *string                    `xml:"id,attr"`                          // Audio + Video
+	Width                     *int64                     `xml:"width,attr"`                       // Video
+	BaseURL                   *string                    `xml:"BaseURL,omitempty"`                // On-Demand Profile
+	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`            // On-Demand Profile
 	SegmentList               *SegmentList               `xml:"SegmentList,omitempty"`
 	SegmentTemplate           *SegmentTemplate           `xml:"SegmentTemplate,omitempty"`
 }
@@ -961,6 +962,42 @@ func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, medi
 	return st, nil
 }
 
+// Sets up a new SegmentTemplate for an AdaptationSet.
+// duration - relative to timescale (i.e. 2000).
+// init - template string for init segment (i.e. $RepresentationID$/audio/en/init.mp4).
+// media - template string for media segments.
+// startNumber - the number to start segments from ($Number$) (i.e. 0).
+// timescale - sets the timescale for duration (i.e. 1000, represents milliseconds).
+func (as *AdaptationSet) SetNewSegmentTemplate2(duration int64, init string, media string, startNumberStr string, timescaleStr string) (*SegmentTemplate, error) {
+
+	st := &SegmentTemplate{
+		Duration:       Int64ptr(duration),
+		Initialization: Strptr(init),
+		Media:          Strptr(media),
+		StartNumber:    nil,
+		Timescale:      nil,
+	}
+	if startNumberStr != "" {
+		startNumber, e := strconv.ParseInt(startNumberStr, 10, 64)
+		if e != nil {
+			st.StartNumber = Int64ptr(startNumber)
+		}
+	}
+
+	if timescaleStr != "" {
+		timesacle, e := strconv.ParseInt(timescaleStr, 10, 64)
+		if e != nil {
+			st.Timescale = Int64ptr(timesacle)
+		}
+	}
+
+	err := as.setSegmentTemplate(st)
+	if err != nil {
+		return nil, err
+	}
+	return st, nil
+}
+
 // Internal helper method for setting the Segment Template on an AdaptationSet.
 func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
 	if st == nil {
@@ -982,6 +1019,32 @@ func (as *AdaptationSet) AddNewRepresentationAudio(samplingRate int64, bandwidth
 		Bandwidth:         Int64ptr(bandwidth),
 		Codecs:            Strptr(codecs),
 		ID:                Strptr(id),
+	}
+
+	err := as.addRepresentation(r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// Adds a new Audio representation to an AdaptationSet.
+// samplingRate - in Hz (i.e. 44100).
+// bandwidth - in Bits/s (i.e. 67095).
+// codecs - codec string for Audio Only (in RFC6381, https://tools.ietf.org/html/rfc6381) (i.e. mp4a.40.2).
+// id - ID for this representation, will get used as $RepresentationID$ in template strings.
+func (as *AdaptationSet) AddNewRepresentationAudio2(samplingRateStr string, bandwidth int64, codecs string, id string) (*Representation, error) {
+	r := &Representation{
+		AudioSamplingRate: nil,
+		Bandwidth:         Int64ptr(bandwidth),
+		Codecs:            Strptr(codecs),
+		ID:                Strptr(id),
+	}
+	if samplingRateStr != "" {
+		samplingRate, e := strconv.ParseInt(samplingRateStr, 10, 64)
+		if e != nil {
+			r.AudioSamplingRate = Int64ptr(samplingRate)
+		}
 	}
 
 	err := as.addRepresentation(r)

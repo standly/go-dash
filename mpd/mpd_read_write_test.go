@@ -1,12 +1,11 @@
 package mpd
 
 import (
+	"github.com/standly/go-dash/helpers/require"
+	"github.com/standly/go-dash/helpers/testfixtures"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/zencoder/go-dash/helpers/require"
-	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
 func TestReadingManifests(t *testing.T) {
