@@ -962,6 +962,8 @@ func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, medi
 	return st, nil
 }
 
+// SegmentTemplate.StartNumber can be empty
+// SegmentTemplate.Timescale can be empty
 // Sets up a new SegmentTemplate for an AdaptationSet.
 // duration - relative to timescale (i.e. 2000).
 // init - template string for init segment (i.e. $RepresentationID$/audio/en/init.mp4).
@@ -1008,6 +1010,7 @@ func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
 	return nil
 }
 
+// Representation.AudioSamplingRate can be empty
 // Adds a new Audio representation to an AdaptationSet.
 // samplingRate - in Hz (i.e. 44100).
 // bandwidth - in Bits/s (i.e. 67095).
