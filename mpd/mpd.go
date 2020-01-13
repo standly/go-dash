@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -70,6 +69,7 @@ var (
 
 type MPD struct {
 	XMLNs                     *string `xml:"xmlns,attr"`
+	XMLNsSCte35               *string `xml:"xmlns scte35,attr"`
 	Profiles                  *string `xml:"profiles,attr"`
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
@@ -93,6 +93,8 @@ type Period struct {
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
 	SegmentTemplate *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
 	AdaptationSets  []*AdaptationSet `xml:"AdaptationSet,omitempty"`
+
+	EventStream *EventStream `xml:"EventStream,omitempty"`
 }
 
 type DescriptorType struct {
@@ -124,6 +126,8 @@ type CommonAttributesAndElements struct {
 	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
 }
 
+type Label struct {
+}
 type AdaptationSet struct {
 	CommonAttributesAndElements
 	XMLName            xml.Name              `xml:"AdaptationSet"`
@@ -137,6 +141,7 @@ type AdaptationSet struct {
 	MinWidth           *string               `xml:"minWidth,attr"`
 	MaxWidth           *string               `xml:"maxWidth,attr"`
 	ContentType        *string               `xml:"contentType,attr"`
+	Label              *Label                `xml:"label,omitempty"`
 	ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 	Roles              []*Role               `xml:"Role,omitempty"`
 	SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
@@ -161,6 +166,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		MinWidth           *string               `xml:"minWidth,attr"`
 		MaxWidth           *string               `xml:"maxWidth,attr"`
 		ContentType        *string               `xml:"contentType,attr"`
+		Label              *Label                `xml:"label,omitempty"`
 		ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 		Roles              []*Role               `xml:"Role,omitempty"`
 		SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
@@ -257,8 +263,14 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 				if err != nil {
 					return err
 				}
+			//case "Label":
+			//	labelStr := ""
+			//	err := d.DecodeElement(labelStr,&tt)
+			//	if err != nil {
+			//		return err
+			//	}
 			default:
-				return fmt.Errorf("unrecognized element in AdaptationSet %q", tt.Name.Local)
+				//return fmt.Errorf("unrecognized element in AdaptationSet %q", tt.Name.Local)
 			}
 		case xml.EndElement:
 			if tt == start.End() {
