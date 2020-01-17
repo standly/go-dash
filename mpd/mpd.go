@@ -84,6 +84,12 @@ type MPD struct {
 	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
+//func (mpd *MPD)UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+//}
+//
+//func (mpd *MPD)MarshalUnmarshalXML(d *xml.Decoder, start xml.StartElement) error{
+//}
+
 type Period struct {
 	ID              string           `xml:"id,attr,omitempty"`
 	Duration        Duration         `xml:"duration,attr,omitempty"`

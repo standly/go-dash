@@ -20,4 +20,5 @@ func main() {
 	}
 	es := playlist.Periods[0].EventStream
 	fmt.Println(es.Event[0].ID)
+	fmt.Println(playlist.WriteToString())
 }
