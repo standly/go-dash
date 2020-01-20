@@ -67,7 +67,7 @@ var (
 	ErrContentProtectionNil                 = errors.New("Content Protection nil")
 )
 
-type mpdBase struct {
+type MpdBase struct {
 	XMLNs                     *string `xml:"xmlns,attr"`
 	Profiles                  *string `xml:"profiles,attr"`
 	Type                      *string `xml:"type,attr"`
@@ -84,7 +84,7 @@ type mpdBase struct {
 }
 
 type MPD struct {
-	mpdBase
+	MpdBase
 	SCte35XMLNS       *string `xml:"scte35,attr,omitempty"`
 	NS1SchemaLocation *string `xml:"schemaLocation,attr,omitempty"`
 	NS1XMLNS          *string `xml:"ns1,attr,omitempty"`
@@ -92,7 +92,7 @@ type MPD struct {
 
 type MPDMarshal struct {
 	XMLName xml.Name `xml:"MPD"`
-	mpdBase
+	MpdBase
 	SCte35XMLNS       *string `xml:"xmlns:scte35,attr,omitempty"`
 	NS1SchemaLocation *string `xml:"ns1:schemaLocation,attr,omitempty"`
 	NS1XMLNS          *string `xml:"xmlns:ns1,attr,omitempty"`
@@ -103,7 +103,7 @@ type MPDMarshal struct {
 
 func (mpd *MPD) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	err := e.Encode(&MPDMarshal{
-		mpdBase:           mpd.mpdBase,
+		MpdBase:           mpd.MpdBase,
 		SCte35XMLNS:       mpd.SCte35XMLNS,
 		NS1SchemaLocation: mpd.NS1SchemaLocation,
 		NS1XMLNS:          mpd.NS1XMLNS,
@@ -374,7 +374,7 @@ type AudioChannelConfiguration struct {
 func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		mpdBase: mpdBase{
+		MpdBase: MpdBase{
 			XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
 			Profiles:                  Strptr((string)(profile)),
 			Type:                      Strptr("static"),
@@ -403,7 +403,7 @@ func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string
 func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		mpdBase: mpdBase{
+		MpdBase: MpdBase{
 			XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
 			Profiles:              Strptr((string)(profile)),
 			Type:                  Strptr("dynamic"),
