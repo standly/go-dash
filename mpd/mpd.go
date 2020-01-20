@@ -67,9 +67,8 @@ var (
 	ErrContentProtectionNil                 = errors.New("Content Protection nil")
 )
 
-type MPD struct {
+type mpdBase struct {
 	XMLNs                     *string `xml:"xmlns,attr"`
-	XMLNsSCte35               *string `xml:"xmlns scte35,attr"`
 	Profiles                  *string `xml:"profiles,attr"`
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
@@ -84,11 +83,36 @@ type MPD struct {
 	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
+type MPD struct {
+	mpdBase
+	SCte35XMLNS       *string `xml:"scte35,attr,omitempty"`
+	NS1SchemaLocation *string `xml:"schemaLocation,attr,omitempty"`
+	NS1XMLNS          *string `xml:"ns1,attr,omitempty"`
+}
+
+type MPDMarshal struct {
+	XMLName xml.Name `xml:"MPD"`
+	mpdBase
+	SCte35XMLNS       *string `xml:"xmlns:scte35,attr,omitempty"`
+	NS1SchemaLocation *string `xml:"ns1:schemaLocation,attr,omitempty"`
+	NS1XMLNS          *string `xml:"xmlns:ns1,attr,omitempty"`
+}
+
 //func (mpd *MPD)UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 //}
-//
-//func (mpd *MPD)MarshalUnmarshalXML(d *xml.Decoder, start xml.StartElement) error{
-//}
+
+func (mpd *MPD) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	err := e.Encode(&MPDMarshal{
+		mpdBase:           mpd.mpdBase,
+		SCte35XMLNS:       mpd.SCte35XMLNS,
+		NS1SchemaLocation: mpd.NS1SchemaLocation,
+		NS1XMLNS:          mpd.NS1XMLNS,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 type Period struct {
 	ID              string           `xml:"id,attr,omitempty"`
@@ -295,146 +319,6 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 	}
 }
 
-// Constants for DRM / ContentProtection
-const (
-	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI       = "urn:mpeg:dash:mp4protection:2011"
-	CONTENT_PROTECTION_ROOT_VALUE               = "cenc"
-	CENC_XMLNS                                  = "urn:mpeg:cenc:2013"
-	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID       = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
-	CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX      = "edef8ba979d64acea3c827dcd51d21ed"
-	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID      = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
-	CONTENT_PROTECTION_PLAYREADY_SCHEME_HEX     = "9a04f07998404286ab92e65be0885f95"
-	CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID  = "urn:uuid:79f0049a-4098-8642-ab92-e65be0885f95"
-	CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_HEX = "79f0049a40988642ab92e65be0885f95"
-	CONTENT_PROTECTION_PLAYREADY_XMLNS          = "urn:microsoft:playready"
-)
-
-type ContentProtectioner interface {
-	ContentProtected()
-}
-
-type ContentProtection struct {
-	AdaptationSet *AdaptationSet `xml:"-"`
-	XMLName       xml.Name       `xml:"ContentProtection"`
-	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
-	Attrs         []*xml.Attr    `xml:",any,attr"`
-}
-
-type CENCContentProtection struct {
-	ContentProtection
-	DefaultKID *string `xml:"default_KID,attr"`
-	Value      *string `xml:"value,attr"` // Default: cenc
-}
-
-type PlayreadyContentProtection struct {
-	ContentProtection
-	PlayreadyXMLNS *string `xml:"mspr,attr,omitempty"`
-	PRO            *string `xml:"pro,omitempty"`
-	PSSH           *string `xml:"pssh,omitempty"`
-}
-
-type WidevineContentProtection struct {
-	ContentProtection
-	PSSH *string `xml:"pssh,omitempty"`
-}
-
-type ContentProtectionMarshal struct {
-	AdaptationSet *AdaptationSet `xml:"-"`
-	XMLName       xml.Name       `xml:"ContentProtection"`
-	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
-	Attrs         []*xml.Attr    `xml:",any,attr"`
-}
-
-type CENCContentProtectionMarshal struct {
-	ContentProtectionMarshal
-	DefaultKID *string `xml:"cenc:default_KID,attr"`
-	Value      *string `xml:"value,attr"` // Default: cenc
-}
-
-type PlayreadyContentProtectionMarshal struct {
-	ContentProtectionMarshal
-	PlayreadyXMLNS *string `xml:"xmlns:mspr,attr,omitempty"`
-	PRO            *string `xml:"mspr:pro,omitempty"`
-	PSSH           *string `xml:"cenc:pssh,omitempty"`
-}
-
-type WidevineContentProtectionMarshal struct {
-	ContentProtectionMarshal
-	PSSH *string `xml:"cenc:pssh,omitempty"`
-}
-
-func (s ContentProtection) ContentProtected() {}
-
-func (s ContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	err := e.Encode(&ContentProtectionMarshal{
-		s.AdaptationSet,
-		s.XMLName,
-		s.SchemeIDURI,
-		s.XMLNS,
-		s.Attrs,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s CENCContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	err := e.Encode(&CENCContentProtectionMarshal{
-		ContentProtectionMarshal{
-			s.AdaptationSet,
-			s.XMLName,
-			s.SchemeIDURI,
-			s.XMLNS,
-			s.Attrs,
-		},
-		s.DefaultKID,
-		s.Value,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s PlayreadyContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	err := e.Encode(&PlayreadyContentProtectionMarshal{
-		ContentProtectionMarshal{
-			s.AdaptationSet,
-			s.XMLName,
-			s.SchemeIDURI,
-			s.XMLNS,
-			s.Attrs,
-		},
-		s.PlayreadyXMLNS,
-		s.PRO,
-		s.PSSH,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s WidevineContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	err := e.Encode(&WidevineContentProtectionMarshal{
-		ContentProtectionMarshal{
-			s.AdaptationSet,
-			s.XMLName,
-			s.SchemeIDURI,
-			s.XMLNS,
-			s.Attrs,
-		},
-		s.PSSH,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 type Role struct {
 	AdaptationSet *AdaptationSet `xml:"-"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"`
@@ -490,13 +374,15 @@ type AudioChannelConfiguration struct {
 func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles:                  Strptr((string)(profile)),
-		Type:                      Strptr("static"),
-		MediaPresentationDuration: Strptr(mediaPresentationDuration),
-		MinBufferTime:             Strptr(minBufferTime),
-		period:                    period,
-		Periods:                   []*Period{period},
+		mpdBase: mpdBase{
+			XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+			Profiles:                  Strptr((string)(profile)),
+			Type:                      Strptr("static"),
+			MediaPresentationDuration: Strptr(mediaPresentationDuration),
+			MinBufferTime:             Strptr(minBufferTime),
+			period:                    period,
+			Periods:                   []*Period{period},
+		},
 	}
 
 	for i := range attributes {
@@ -517,14 +403,16 @@ func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string
 func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles:              Strptr((string)(profile)),
-		Type:                  Strptr("dynamic"),
-		AvailabilityStartTime: Strptr(availabilityStartTime),
-		MinBufferTime:         Strptr(minBufferTime),
-		period:                period,
-		Periods:               []*Period{period},
-		UTCTiming:             &DescriptorType{},
+		mpdBase: mpdBase{
+			XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
+			Profiles:              Strptr((string)(profile)),
+			Type:                  Strptr("dynamic"),
+			AvailabilityStartTime: Strptr(availabilityStartTime),
+			MinBufferTime:         Strptr(minBufferTime),
+			period:                period,
+			Periods:               []*Period{period},
+			UTCTiming:             &DescriptorType{},
+		},
 	}
 
 	for i := range attributes {
