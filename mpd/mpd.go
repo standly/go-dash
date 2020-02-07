@@ -75,7 +75,7 @@ type MpdBase struct {
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
 	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
 	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
-	MaxSegmentDuration        *string `xml:"MaxSegmentDuration,attr"`
+	MaxSegmentDuration        *string `xml:"maxSegmentDuration,attr"`
 	PublishTime               *string `xml:"publishTime,attr"`
 	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
