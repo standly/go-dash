@@ -39,6 +39,7 @@ type SegmentTimelineSegment struct {
 	StartTime   *uint64 `xml:"t,attr,omitempty"`
 	Duration    uint64  `xml:"d,attr"`
 	RepeatCount *int    `xml:"r,attr,omitempty"`
+	Number      *uint64 `xml:"n,attr,omitempty"`
 }
 
 type URL struct {
