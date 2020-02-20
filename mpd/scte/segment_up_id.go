@@ -11,7 +11,7 @@ type SegmentationUpID struct {
 	SegmentationTypeId     *uint64 `xml:"segmentationTypeId,attr"`
 	SegmentNum             *uint64 `xml:"segmentNum,attr"`
 	SegmentsExpected       *uint64 `xml:"segmentsExpected,attr"`
-	SegmentationUpidFromat *string `xml:"segmentationUpidFromat,attr"`
+	SegmentationUpidFormat *string `xml:"segmentationUpidFormat,attr"`
 	SegmentationUpIDValue  *string `xml:",chardata"`
 }
 
@@ -27,7 +27,7 @@ func (sui *SegmentationUpID) MarshalXML(e *xml.Encoder, start xml.StartElement) 
 		SegmentationTypeId     *uint64  `xml:"segmentationTypeId,attr"`
 		SegmentNum             *uint64  `xml:"segmentNum,attr"`
 		SegmentsExpected       *uint64  `xml:"segmentsExpected,attr"`
-		SegmentationUpidFromat *string  `xml:"segmentationUpidFromat,attr"`
+		SegmentationUpidFormat *string  `xml:"segmentationUpidFormat,attr"`
 		SegmentationUpIDValue  *string  `xml:",chardata"`
 	}
 	err := e.Encode(&SegmentationUpIDMashal{
@@ -37,7 +37,7 @@ func (sui *SegmentationUpID) MarshalXML(e *xml.Encoder, start xml.StartElement) 
 		SegmentNum:             sui.SegmentNum,
 		SegmentsExpected:       sui.SegmentsExpected,
 		SegmentationUpIDValue:  sui.SegmentationUpIDValue,
-		SegmentationUpidFromat: sui.SegmentationUpidFromat,
+		SegmentationUpidFormat: sui.SegmentationUpidFormat,
 	})
 	if err != nil {
 		return err

@@ -12,7 +12,11 @@
                     <scte35:TimeSignal>
                         <scte35:SpliceTime ptsTime="8230765680"/>
                     </scte35:TimeSignal>
-                    <scte35:SegmentationDescriptor segmentationEventId="67110670" segmentationEventCancelIndicator="false" segmentationDuration="900000" segmentationTypeId="52" segmentNum="1" segmentsExpected="1" subSegmentNum="1" subSegmentsExpected="1">
+                    <scte35:SegmentationDescriptor
+                            segmentationEventId="67110670"
+                            segmentationEventCancelIndicator="false"
+                            segmentationDuration="900000"
+                            segmentationTypeId="52" segmentNum="1" segmentsExpected="1" subSegmentNum="1" subSegmentsExpected="1">
                         <scte35:DeliveryRestrictions webDeliveryAllowedFlag="false" noRegionalBlackoutFlag="false" archiveAllowedFlag="false" device_restrictions="0"/>
                         <scte35:SegmentationUpid segmentationUpidType="14" segmentationUpidFormat="hexbinary">
                             435249504c3139383138
