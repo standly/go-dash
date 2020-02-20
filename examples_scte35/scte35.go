@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	xmlContent, e := ioutil.ReadFile("examples_scte35/scte35_examples.xml")
+	xmlContent, e := ioutil.ReadFile("examples_scte35/scte35.exp2.xml")
 	if e != nil {
 		fmt.Println(e.Error())
 		return
@@ -19,6 +19,8 @@ func main() {
 		return
 	}
 	es := playlist.Periods[0].EventStream
-	fmt.Println(es.Event[0].ID)
+	ev := es.Event[0]
+	fmt.Println(ev.SpliceInfoSection.SegmentationDescriptor.SegmentationUpID.SegmentationUpIDValue)
+	//fmt.Println(es.Event[0].ID)
 	fmt.Println(playlist.WriteToString())
 }

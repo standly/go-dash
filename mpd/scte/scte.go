@@ -1,6 +1,9 @@
 package scte
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"strings"
+)
 
 const (
 	DASH_SCTE35_URI = "urn:scte:scte35:2013:xml"
@@ -121,9 +124,14 @@ type SegmentationUpID struct {
 	SegmentationTypeId     *uint64 `xml:"segmentationTypeId,attr"`
 	SegmentNum             *uint64 `xml:"segmentNum,attr"`
 	SegmentsExpected       *uint64 `xml:"segmentsExpected,attr"`
+	SegmentationUpIDValue  *string `xml:",chardata"`
 }
 
 func (sui *SegmentationUpID) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if sui.SegmentationUpIDValue != nil {
+		idv := strings.TrimSpace(*sui.SegmentationUpIDValue)
+		sui.SegmentationUpIDValue = &idv
+	}
 	type SegmentationUpIDMashal struct {
 		XMLName                xml.Name `xml:"scte35:SegmentationUpid"`
 		SegmentationUpidType   *uint64  `xml:"segmentationUpidType,attr"`
@@ -131,6 +139,7 @@ func (sui *SegmentationUpID) MarshalXML(e *xml.Encoder, start xml.StartElement) 
 		SegmentationTypeId     *uint64  `xml:"segmentationTypeId,attr"`
 		SegmentNum             *uint64  `xml:"segmentNum,attr"`
 		SegmentsExpected       *uint64  `xml:"segmentsExpected,attr"`
+		SegmentationUpIDValue  *string  `xml:",chardata"`
 	}
 	err := e.Encode(&SegmentationUpIDMashal{
 		SegmentationUpidType:   sui.SegmentationUpidType,
@@ -138,6 +147,7 @@ func (sui *SegmentationUpID) MarshalXML(e *xml.Encoder, start xml.StartElement) 
 		SegmentationTypeId:     sui.SegmentationTypeId,
 		SegmentNum:             sui.SegmentNum,
 		SegmentsExpected:       sui.SegmentsExpected,
+		SegmentationUpIDValue:  sui.SegmentationUpIDValue,
 	})
 	if err != nil {
 		return err
