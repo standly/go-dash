@@ -26,6 +26,7 @@ type EventStream struct {
 }
 
 type EventMarshal struct {
+	XMLName xml.Name `xml:"Event"`
 	EventBase
 	// https://stackoverflow.com/questions/34820549/unable-to-parse-xml-in-go-with-in-tags
 	// wired is `xml:"scte35 SpliceInfoSection,omitempty"` not working here
