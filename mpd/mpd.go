@@ -174,6 +174,7 @@ type AdaptationSet struct {
 	SegmentAlignment        *bool                 `xml:"segmentAlignment,attr"`
 	SubSegmentAlignment     *bool                 `xml:"subsegmentAlignment,attr"`
 	SubSegmentStartsWithSAP *int64                `xml:"subsegmentStartsWithSAP,attr"`
+	BitStreamSwitching      *bool                 `xml:"bitstreamSwitching,attr"`
 	Lang                    *string               `xml:"lang,attr"`
 	Group                   *string               `xml:"group,attr"`
 	PAR                     *string               `xml:"par,attr"`
@@ -201,6 +202,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		SegmentAlignment        *bool                 `xml:"segmentAlignment,attr"`
 		SubSegmentAlignment     *bool                 `xml:"subsegmentAlignment,attr"`
 		SubSegmentStartsWithSAP *int64                `xml:"subsegmentStartsWithSAP,attr"`
+		BitStreamSwitching      *bool                 `xml:"bitstreamSwitching,attr"`
 		Lang                    *string               `xml:"lang,attr"`
 		Group                   *string               `xml:"group,attr"`
 		PAR                     *string               `xml:"par,attr"`
