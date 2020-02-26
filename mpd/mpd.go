@@ -68,20 +68,21 @@ var (
 )
 
 type MpdBase struct {
-	XMLNs                     *string `xml:"xmlns,attr"`
-	Profiles                  *string `xml:"profiles,attr"`
-	Type                      *string `xml:"type,attr"`
-	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
-	MinBufferTime             *string `xml:"minBufferTime,attr"`
-	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
-	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
-	MaxSegmentDuration        *string `xml:"maxSegmentDuration,attr"`
-	PublishTime               *string `xml:"publishTime,attr"`
-	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
-	BaseURL                   string  `xml:"BaseURL,omitempty"`
-	period                    *Period
-	Periods                   []*Period       `xml:"Period,omitempty"`
-	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
+	XMLNs                      *string `xml:"xmlns,attr"`
+	Profiles                   *string `xml:"profiles,attr"`
+	Type                       *string `xml:"type,attr"`
+	MediaPresentationDuration  *string `xml:"mediaPresentationDuration,attr"`
+	MinBufferTime              *string `xml:"minBufferTime,attr"`
+	AvailabilityStartTime      *string `xml:"availabilityStartTime,attr,omitempty"`
+	MinimumUpdatePeriod        *string `xml:"minimumUpdatePeriod,attr"`
+	MaxSegmentDuration         *string `xml:"maxSegmentDuration,attr"`
+	PublishTime                *string `xml:"publishTime,attr"`
+	TimeShiftBufferDepth       *string `xml:"timeShiftBufferDepth,attr"`
+	SuggestedPresentationDelay *string `xml:"suggestedPresentationDelay,attr"`
+	BaseURL                    string  `xml:"BaseURL,omitempty"`
+	period                     *Period
+	Periods                    []*Period       `xml:"Period,omitempty"`
+	UTCTiming                  *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
 type MPD struct {
@@ -89,6 +90,8 @@ type MPD struct {
 	SCte35XMLNS       *string `xml:"scte35,attr,omitempty"`
 	NS1SchemaLocation *string `xml:"schemaLocation,attr,omitempty"`
 	NS1XMLNS          *string `xml:"ns1,attr,omitempty"`
+	XSISchemaLocation *string `xml:"xsi:schemaLocation,attr,omitempty"`
+	XSIXMLNS          *string `xml:"xsi,attr,omitempty"`
 }
 
 type MPDMarshal struct {
@@ -97,6 +100,8 @@ type MPDMarshal struct {
 	SCte35XMLNS       *string `xml:"xmlns:scte35,attr,omitempty"`
 	NS1SchemaLocation *string `xml:"ns1:schemaLocation,attr,omitempty"`
 	NS1XMLNS          *string `xml:"xmlns:ns1,attr,omitempty"`
+	XSISchemaLocation *string `xml:"xsi:schemaLocation,attr,omitempty"`
+	XSIXMLNS          *string `xml:"xmlns:xsi,attr,omitempty"`
 }
 
 //func (mpd *MPD)UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
@@ -108,6 +113,8 @@ func (mpd *MPD) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		SCte35XMLNS:       mpd.SCte35XMLNS,
 		NS1SchemaLocation: mpd.NS1SchemaLocation,
 		NS1XMLNS:          mpd.NS1XMLNS,
+		XSISchemaLocation: mpd.XSISchemaLocation,
+		XSIXMLNS:          mpd.XSIXMLNS,
 	})
 	if err != nil {
 		return err
@@ -162,50 +169,54 @@ type Label struct {
 }
 type AdaptationSet struct {
 	CommonAttributesAndElements
-	XMLName            xml.Name              `xml:"AdaptationSet"`
-	ID                 *string               `xml:"id,attr"`
-	SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
-	Lang               *string               `xml:"lang,attr"`
-	Group              *string               `xml:"group,attr"`
-	PAR                *string               `xml:"par,attr"`
-	MinBandwidth       *string               `xml:"minBandwidth,attr"`
-	MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
-	MinWidth           *string               `xml:"minWidth,attr"`
-	MaxWidth           *string               `xml:"maxWidth,attr"`
-	ContentType        *string               `xml:"contentType,attr"`
-	Label              *Label                `xml:"label,omitempty"`
-	ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-	Roles              []*Role               `xml:"Role,omitempty"`
-	SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
-	SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
-	SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations    []*Representation     `xml:"Representation,omitempty"`
-	AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
+	XMLName                 xml.Name              `xml:"AdaptationSet"`
+	ID                      *string               `xml:"id,attr"`
+	SegmentAlignment        *bool                 `xml:"segmentAlignment,attr"`
+	SubSegmentAlignment     *bool                 `xml:"subsegmentAlignment,attr"`
+	SubSegmentStartsWithSAP *int64                `xml:"subsegmentStartsWithSAP,attr"`
+	Lang                    *string               `xml:"lang,attr"`
+	Group                   *string               `xml:"group,attr"`
+	PAR                     *string               `xml:"par,attr"`
+	MinBandwidth            *string               `xml:"minBandwidth,attr"`
+	MaxBandwidth            *string               `xml:"maxBandwidth,attr"`
+	MinWidth                *string               `xml:"minWidth,attr"`
+	MaxWidth                *string               `xml:"maxWidth,attr"`
+	ContentType             *string               `xml:"contentType,attr"`
+	Label                   *Label                `xml:"label,omitempty"`
+	ContentProtection       []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
+	Roles                   []*Role               `xml:"Role,omitempty"`
+	SegmentBase             *SegmentBase          `xml:"SegmentBase,omitempty"`
+	SegmentList             *SegmentList          `xml:"SegmentList,omitempty"`
+	SegmentTemplate         *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations         []*Representation     `xml:"Representation,omitempty"`
+	AccessibilityElems      []*Accessibility      `xml:"Accessibility,omitempty"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	adaptationSet := struct {
 		CommonAttributesAndElements
-		XMLName            xml.Name              `xml:"AdaptationSet"`
-		ID                 *string               `xml:"id,attr"`
-		SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
-		Lang               *string               `xml:"lang,attr"`
-		Group              *string               `xml:"group,attr"`
-		PAR                *string               `xml:"par,attr"`
-		MinBandwidth       *string               `xml:"minBandwidth,attr"`
-		MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
-		MinWidth           *string               `xml:"minWidth,attr"`
-		MaxWidth           *string               `xml:"maxWidth,attr"`
-		ContentType        *string               `xml:"contentType,attr"`
-		Label              *Label                `xml:"label,omitempty"`
-		ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-		Roles              []*Role               `xml:"Role,omitempty"`
-		SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
-		SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
-		SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-		Representations    []*Representation     `xml:"Representation,omitempty"`
-		AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
+		XMLName                 xml.Name              `xml:"AdaptationSet"`
+		ID                      *string               `xml:"id,attr"`
+		SegmentAlignment        *bool                 `xml:"segmentAlignment,attr"`
+		SubSegmentAlignment     *bool                 `xml:"subsegmentAlignment,attr"`
+		SubSegmentStartsWithSAP *int64                `xml:"subsegmentStartsWithSAP,attr"`
+		Lang                    *string               `xml:"lang,attr"`
+		Group                   *string               `xml:"group,attr"`
+		PAR                     *string               `xml:"par,attr"`
+		MinBandwidth            *string               `xml:"minBandwidth,attr"`
+		MaxBandwidth            *string               `xml:"maxBandwidth,attr"`
+		MinWidth                *string               `xml:"minWidth,attr"`
+		MaxWidth                *string               `xml:"maxWidth,attr"`
+		ContentType             *string               `xml:"contentType,attr"`
+		Label                   *Label                `xml:"label,omitempty"`
+		ContentProtection       []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
+		Roles                   []*Role               `xml:"Role,omitempty"`
+		SegmentBase             *SegmentBase          `xml:"SegmentBase,omitempty"`
+		SegmentList             *SegmentList          `xml:"SegmentList,omitempty"`
+		SegmentTemplate         *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+		Representations         []*Representation     `xml:"Representation,omitempty"`
+		AccessibilityElems      []*Accessibility      `xml:"Accessibility,omitempty"`
 	}{}
 
 	var (
