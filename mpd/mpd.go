@@ -129,7 +129,8 @@ type Period struct {
 	BaseURL     string       `xml:"BaseURL,omitempty"`
 	SegmentBase *SegmentBase `xml:"SegmentBase,omitempty"`
 
-	EventStream *EventStream `xml:"EventStream,omitempty"`
+	EventStream          *EventStream          `xml:"EventStream,omitempty"`
+	SupplementalProperty *SupplementalProperty `xml:"SupplementalProperty,omitempty"`
 
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
 	SegmentTemplate *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
